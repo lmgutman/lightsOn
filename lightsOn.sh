@@ -267,7 +267,7 @@ isAppRunning()
         if [[ "$activ_win_title" == *andex-browser* ]]; then
             # Check if Yandex browser process is running.
             if [[ $(pgrep -c "yandex_browser") -ge 1 ]]; then
-                log "isAppRunning(): Yandex browser html5 fullscreen detected"
+                log "isAppRunning(): Yandex browser fullscreen detected"
                 return 1
             fi
         fi
