@@ -47,7 +47,7 @@ DEBUG=0
 
 # this is actually the minimum allowed dynamic delay.
 # Also the default (if everything else fails)
-default_sleep_delay=10
+default_sleep_delay=50
 
 # Modify these variables if you want this script to detect if MPV, Mplayer,
 # VLC, Minitube, Totem or a web browser Flash/HTML5 Video.
