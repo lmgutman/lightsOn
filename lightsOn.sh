@@ -64,6 +64,7 @@ chrome_pepper_flash_detection=1
 chrome_html5_detection=1
 opera_flash_detection=1
 opera_html5_detection=1
+yandexBrowser_html5_flash_detection=1
 epiphany_html5_detection=1
 webkit_flash_detection=1
 minitube_detection=1
@@ -256,6 +257,17 @@ isAppRunning()
             # Check if Chromium process is running.
             if [[ $(pgrep -c "chromium") -ge 1 ]]; then
                 log "isAppRunning(): chromium html5 fullscreen detected"
+                return 1
+            fi
+        fi
+    fi
+
+    # Check if user want to detect HTML5 fullscreen on Yandex browser.
+    if [ $yandexBrowser_html5_flash_detection == 1 ]; then
+        if [[ "$activ_win_title" == *andex-browser* ]]; then
+            # Check if Yandex browser process is running.
+            if [[ $(pgrep -c "yandex_browser") -ge 1 ]]; then
+                log "isAppRunning(): Yandex browser fullscreen detected"
                 return 1
             fi
         fi
