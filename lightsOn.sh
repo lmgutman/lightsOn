@@ -116,12 +116,8 @@ if [ $X11ScreenSaver_Control == 1 ]; then
     xset s $X11ScreenSaver_Timeout
 fi
 
-# Enumerate all the attached screens.
-displays=""
-while read id
-do
-    displays="$displays $id"
-done < <(xvinfo | sed -n 's/^screen #\([0-9]\+\)$/\1/p')
+# enumerate all the attached screens
+displays=$(xvinfo | awk -F'#' '/^screen/ {print $2}' | xargs)
 
 # Detect screensaver been used (xscreensaver, kscreensaver or none)
 if pgrep -x xscreensaver > /dev/null; then
