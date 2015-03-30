@@ -123,25 +123,14 @@ do
     displays="$displays $id"
 done < <(xvinfo | sed -n 's/^screen #\([0-9]\+\)$/\1/p')
 
-# Detect screensaver been used.
-if [ "$(pidof -s xscreensaver)" ]; then
+# Detect screensaver been used (xscreensaver, kscreensaver or none)
+if pgrep -x xscreensaver > /dev/null; then
     screensaver=xscreensaver
-    log "xscreensaver detected"
-elif [ "$(pidof -s kscreensaver)" ]; then
+elif pgrep -x kscreensaver > /dev/null; then
     screensaver=kscreensaver
-    log "kscreensaver detected"
-elif [ "$(pidof -s xautolock)" ]; then
-    screensaver=xautolock
-    log "xautolock detected"
-elif [ $(pgrep -cf "(gnome-screensaver|/usr/bin/gnome-screensaver)") -ge 1 ]; then
-    screensaver=gnome-screensaver
-    log "gnome-screensaver detected"
-elif [ "$(pidof -s cinnamon-screen)" ]; then
-    screensaver=cinnamon-screensaver
-    log "cinnamon-screensaver detected"
 else
     screensaver=None
-    log "No screensaver detected"
+    echo "No screensaver detected"
 fi
 
 checkDelayProgs()
