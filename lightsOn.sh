@@ -156,13 +156,6 @@ checkFullscreen()
         # Previously used _NET_ACTIVE_WINDOW, but it didn't work with some flash
         # players (eg. Twitch.tv) in firefox. Using sed because id lengths can vary.
 
-        # Skip invalid window ids (commented as I could not reproduce a case
-        # where invalid id was returned, plus if is invalid isActivWinFullscreen
-        # will fail anyway).
-        # if [ "$activ_win_id" = "0x0" ]; then
-        #     continue
-        # fi
-
         # Check if active window is in fullscreen or above state.
         if [[ -n $activ_win_id ]]; then
             isActivWinFullscreen=$(DISPLAY=:${display} xprop -id $activ_win_id | grep -c _NET_WM_STATE_FULLSCREEN)
@@ -452,11 +445,6 @@ delayScreensaver()
             log "delayScreensaver(): trying to delay with xdg-screensaver..."
             xdg-screensaver reset
         fi
-        # Wrong way to simulate activity, this will interfere your work.
-        # if [ -f /usr/bin/xdotool ]; then
-        #     log "delayScreensaver(): trying to delay with xdotool..."
-        #     xdotool key ctrl
-        # fi
     fi
 
     # Check if DPMS is on. If it is, deactivate. If it is not, do nothing.
@@ -464,8 +452,6 @@ delayScreensaver()
     if [ $dpmsStatus == 1 ]; then
         xset -dpms
 	log "delayScrennsaver(): DPMS disabled"
-        # moved to checkFullscreen().
-        #xset dpms
     fi
 
     # Turn off X11 Screensaver if necessary.
@@ -492,6 +478,7 @@ checkOutputs()
         return
     fi
 
+    log "checkOutputs()"
     declare -A connected_outputs
     while read line
     do
