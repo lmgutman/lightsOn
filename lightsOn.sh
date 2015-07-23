@@ -179,8 +179,12 @@ checkFullscreen()
                     return
 		else
 		    log "checkFullscreen(): the fullscreen app is unknown or not set to trigger the delay"
+		    # enable DPMS if necessary.
+		    dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
+    		    if [ $dpmsStatus == 0 ]; then
 		    log "checkFullscreen(): DPMS enabled"
 		    xset dpms
+		    fi
                     # Turn on X11 Screensaver if necessary.
                     X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
                     if [ $X11ScreensaverStatus -eq 0 ]; then
@@ -191,9 +195,13 @@ checkFullscreen()
                 fi
             # If no Fullscreen active => set dpms on.
             else
-                log "checkFullscreen(): NO fullscreen detected - DPMS enabled"
-                xset dpms
-
+                log "checkFullscreen(): NO fullscreen detected"
+                # enable DPMS if necessary.
+                dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
+                if [ $dpmsStatus == 0 ]; then
+		xset dpms
+		log "checkFullscreen(): DPMS enabled"
+		fi
                 # Turn on X11 Screensaver if necessary.
                 X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
                 if [ $X11ScreensaverStatus -eq 0 ]; then
