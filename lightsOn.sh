@@ -97,6 +97,7 @@ X11ScreenSaver_Timeout=600
 # YOU SHOULD NOT NEED TO MODIFY ANYTHING BELOW THIS LINE
 gsettings_present=$(if [ -x $(which gsettings) ]; then echo 1; else echo 0; fi)
 xdg_screensaver_present=$(if [ -x $(which xdg-screensaver) ]; then echo 1; else echo 0; fi)
+delay_this_loop=0
 
 log() {
     if [ $DEBUG -eq 2 ]; then
@@ -158,6 +159,11 @@ checkDelayProgs()
 
 checkFullscreen()
 {
+    if [ $delay_this_loop == 1 ]; then
+        log "checkFullscreen() omitted - already delayed this loop"
+        return
+    fi
+
     log "checkFullscreen()"
     # Loop through every display looking for a fullscreen window.
     for display in $displays
@@ -224,7 +230,11 @@ checkFullscreen()
 
 isAppRunning()
 {
-  if [ $app_checks == 1 ]; then
+    if [ $app_checks == 0 ]; then
+        log "isAppRunning() deactivated - delaying because something is running in fullscreen"
+        return 1
+    fi
+
     log "isAppRunning()"
     # Get title of active window.
     activ_win_title=$(xprop -id $activ_win_id | grep "WM_CLASS(STRING)")
@@ -425,15 +435,11 @@ isAppRunning()
     fi
 
     return 0
-
-  else
-  log "isAppRunning() deactivated - delaying because something is running in fullscreen"
-  return 1
-  fi
 }
 
 delayScreensaver()
 {
+    delay_this_loop=1
     # Reset inactivity time counter so screensaver is not started.
     if [ "$screensaver" == "xscreensaver" ]; then
         log "delayScreensaver(): delaying xscreensaver..."
@@ -485,9 +491,11 @@ delayScreensaver()
 
 checkOutputs()
 {
-    if [ $output_detection_control == 0 ]; then
-        return
-    fi
+    if [ $output_detection_control == 0 ]; then return; fi
+    if [ $delay_this_loop == 1 ]; then
+	log "checkOutputs() omitted - already delayed this loop"
+	return
+   fi
 
     log "checkOutputs()"
     declare -A connected_outputs
@@ -514,6 +522,7 @@ checkOutputs()
 
 _sleep()
 {
+    delay_this_loop=0
     if [ $dynamicDelay -eq 0 ]; then
         log "sleeping for $delay"
         log "--------------- loop done! ---------------"
@@ -563,8 +572,8 @@ fi
 while true
 do
     checkDelayProgs
-    checkFullscreen
     checkOutputs
+    checkFullscreen
     _sleep $delay
 done
 
