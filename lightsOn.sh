@@ -49,6 +49,10 @@ DEBUG=0
 # Also the default (if everything else fails)
 default_sleep_delay=50
 
+# Set this variable to 0 to disable checking for individual programs below,
+# but instead trigger on any active fullscreen.
+app_checks=1
+
 # Modify these variables if you want this script to detect if MPV, Mplayer,
 # VLC, Minitube, Totem or a web browser Flash/HTML5 Video.
 mplayer_detection=1
@@ -197,6 +201,7 @@ checkFullscreen()
 
 isAppRunning()
 {
+  if [ $app_checks == 1 ]; then
     log "isAppRunning()"
     # Get title of active window.
     activ_win_title=$(xprop -id $activ_win_id | grep "WM_CLASS(STRING)")
@@ -397,6 +402,11 @@ isAppRunning()
     fi
 
     return 0
+
+  else
+  log "isAppRunning() deactivated - delaying because something is running in fullscreen"
+  return 1
+  fi
 }
 
 delayScreensaver()
