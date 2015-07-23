@@ -96,10 +96,10 @@ xdg_screensaver_present=$(if [ -x $(which xdg-screensaver) ]; then echo 1; else 
 
 log() {
     if [ $DEBUG -eq 2 ]; then
-        echo $@
+        echo "["`date +%H:%M:%S`"] - " $@
     elif [ $DEBUG -eq 1 ]; then
         if [ "$(echo $@ | grep -c 'sleeping for')" == "1" ]; then
-            echo $@
+            echo "["`date +%H:%M:%S`"] - " $@
         fi
     fi
 }
@@ -126,7 +126,7 @@ elif pgrep -x kscreensaver > /dev/null; then
     screensaver=kscreensaver
 else
     screensaver=None
-    echo "No screensaver detected"
+    log "No screensaver detected"
 fi
 
 checkDelayProgs()
@@ -176,13 +176,13 @@ checkFullscreen()
                 fi
             # If no Fullscreen active => set dpms on.
             else
-                log "checkFullscreen(): NO fullscreen detected"
+                log "checkFullscreen(): NO fullscreen detected - DPMS enabled"
                 xset dpms
 
                 # Turn on X11 Screensaver if necessary.
                 X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
                 if [ $X11ScreensaverStatus -eq 0 ]; then
-                    log "checkFullscreen(): Enabling X11 Screensaver Extension"
+                    log "checkFullscreen(): X11 Screensaver Extension enabled"
                     xset s on
                 fi
 
@@ -434,6 +434,7 @@ delayScreensaver()
     dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
     if [ $dpmsStatus == 1 ]; then
         xset -dpms
+	log "delayScrennsaver(): DPMS disabled"
         # moved to checkFullscreen().
         #xset dpms
     fi
@@ -441,7 +442,7 @@ delayScreensaver()
     # Turn off X11 Screensaver if necessary.
     X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
     if [ $X11ScreensaverStatus -ge 1 ]; then
-        log "delayScreensaver(): turning X11 Screensaver Extension off"
+        log "delayScreensaver(): X11 Screensaver Extension disabled"
         xset s off
     fi
 
@@ -488,7 +489,8 @@ _sleep()
 {
     if [ $dynamicDelay -eq 0 ]; then
         log "sleeping for $delay"
-        sleep $delay
+        log "--------------- loop done! ---------------"
+	sleep $delay
     else
         if [ -f /sys/class/power_supply/AC/online ]; then
             if [ $gsettings_present == 1 ]; then
@@ -509,7 +511,8 @@ _sleep()
             sleep_delay=$default_sleep_delay
         fi
         log "sleeping for $sleep_delay (system idle timeout is $system_sleep_delay)"
-        sleep $sleep_delay
+        log "--------------- loop done! ---------------"
+	sleep $sleep_delay
     fi
 }
 
