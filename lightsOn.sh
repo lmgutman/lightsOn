@@ -228,6 +228,17 @@ checkFullscreen()
 # TODO only window name in the variable activ_win_title, not whole line.
 # Then change IFs to detect more specifically the apps "<vlc>" and if process name exist.
 
+# This function covers the standard way to check apps in isAppRunning
+runcheck()
+{
+        if [[ "$activ_win_title" = *$1* ]]; then
+            if [ "$(pidof -s $1)" ]; then
+                log "isAppRunning(): $1 fullscreen detected"
+                return 1
+            fi
+        fi
+}
+
 isAppRunning()
 {
     if [ $app_checks == 0 ]; then
@@ -345,28 +356,6 @@ isAppRunning()
         fi
     fi
 
-    # Check if user want to detect HTML5 fullscreen on Opera.
-    if [ $opera_html5_detection == 1 ]; then
-        if [[ "$activ_win_title" = *opera* ]]; then
-            # Check if Opera process is running.
-            if [ "$(pidof -s opera)" ]; then
-                log "isAppRunning(): opera html5 fullscreen detected"
-                return 1
-            fi
-        fi
-    fi
-
-    # Check if user want to detect HTML5 fullscreen on Epiphany.
-    if [ $epiphany_html5_detection == 1 ]; then
-        if [[ "$activ_win_title" = *epiphany* ]]; then
-            # Check if Epiphany process is running.
-            if [[ "$(pidof -s epiphany)" ]]; then
-                log "isAppRunning(): epiphany html5 fullscreen detected"
-                return 1
-            fi
-        fi
-    fi
-
     # Check if user want to detect Flash fullscreen on WebKit.
     if [ $webkit_flash_detection == 1 ]; then
         if [[ "$activ_win_title" = *WebKitPluginProcess* ]]; then
@@ -390,49 +379,12 @@ isAppRunning()
         fi
     fi
 
-    # Check if user want to detect Totem fullscreen.
-    if [ $totem_detection == 1 ]; then
-        if [[ "$activ_win_title" = *totem* ]]; then
-            # Check if Totem is running.
-            if [ "$(pidof -s totem)" ]; then
-                log "isAppRunning(): totem fullscreen detected"
-                return 1
-            fi
-        fi
-    fi
-
-    # Check if user want to detect MPV fullscreen.
-    if [ $mpv_detection == 1 ]; then
-        if [[ "$activ_win_title" = *mpv* ]]; then
-            # Check if MPV is running.
-            if [ "$(pidof -s mpv)" ]; then
-                log "isAppRunning(): mpv fullscreen detected"
-                return 1
-            fi
-        fi
-    fi
-
-    # Check if user want to detect VLC fullscreen.
-    if [ $vlc_detection == 1 ]; then
-        if [[ "$activ_win_title" = *vlc* ]]; then
-            # Check if VLC is running.
-            if [ "$(pidof -s vlc)" ]; then
-                log "isAppRunning(): vlc fullscreen detected"
-                return 1
-            fi
-        fi
-    fi
-
-    # Check if user want to detect Minitube fullscreen.
-    if [ $minitube_detection == 1 ]; then
-        if [[ "$activ_win_title" = *minitube* ]]; then
-            # Check if Minitube is running.
-            if [ "$(pidof -s minitube)" ]; then
-                log "isAppRunning(): minitube fullscreen detected"
-                return 1
-            fi
-        fi
-    fi
+    if [ $opera_html5_detection == 1 ]; then runcheck opera; if [ $? == 1 ]; then return 1; fi; fi
+    if [ $epiphany_html5_detection == 1 ]; then runcheck epiphany; if [ $? == 1 ]; then return 1; fi; fi
+    if [ $totem_detection == 1 ]; then runcheck totem; if [ $? == 1 ]; then return 1; fi; fi
+    if [ $mpv_detection == 1 ]; then runcheck mpv; if [ $? == 1 ]; then return 1; fi; fi
+    if [ $vlc_detection == 1 ]; then runcheck vlc; if [ $? == 1 ]; then return 1; fi; fi
+    if [ $minitube_detection == 1 ]; then runcheck minitube; if [ $? == 1 ]; then return 1; fi; fi
 
     return 0
 }
