@@ -123,11 +123,22 @@ fi
 # enumerate all the attached screens
 displays=$(xvinfo | awk -F'#' '/^screen/ {print $2}' | xargs)
 
-# Detect screensaver been used (xscreensaver, kscreensaver or none)
+# Detect screensaver being used
 if pgrep -x xscreensaver > /dev/null; then
     screensaver=xscreensaver
+    log "xscreensaver detected"
 elif pgrep -x kscreensaver > /dev/null; then
     screensaver=kscreensaver
+    log "kscreensaver detected"
+elif pgrep -x xautolock > /dev/null; then
+    screensaver=xautolock
+    log "xautolock detected"
+elif pgrep -x gnome-screensaver > /dev/null; then
+    screensaver=gnome-screensaver
+    log "gnome-screensaver detected"
+elif pgrep -x cinnamon-screen > /dev/null; then
+    screensaver=cinnamon-screensaver
+    log "cinnamon-screensaver detected"
 else
     screensaver=None
     log "No screensaver detected"
