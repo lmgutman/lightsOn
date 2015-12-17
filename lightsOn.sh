@@ -43,7 +43,7 @@
 # DEBUG=0 for no output
 # DEBUG=1 for sleep prints
 # DEBUG=2 for everything
-DEBUG=2
+DEBUG=0
 
 # this is actually the minimum allowed dynamic delay.
 # Also the default (if everything else fails)
@@ -108,6 +108,13 @@ log() {
         fi
     fi
 }
+
+pid=`pgrep --exact "$(basename $0)"`
+if [ $? -eq 0 -a "$pid" != "$$" ]
+then
+    log "$0 is already running" 2>&1
+    exit 1
+fi
 
 # Setting DPMS.
 if [ $DPMS_Control == 1 ]; then
