@@ -43,7 +43,7 @@
 # DEBUG=0 for no output
 # DEBUG=1 for sleep prints
 # DEBUG=2 for everything
-DEBUG=0
+DEBUG=2
 
 # this is actually the minimum allowed dynamic delay.
 # Also the default (if everything else fails)
@@ -137,6 +137,9 @@ elif pgrep -x xautolock > /dev/null; then
 elif pgrep -x gnome-screensaver > /dev/null; then
     screensaver=gnome-screensaver
     log "gnome-screensaver detected"
+elif pgrep -x mate-screensaver > /dev/null; then
+    screensaver=mate-screensaver
+    log "mate-screensaver detected"
 elif pgrep -x cinnamon-screen > /dev/null; then
     screensaver=cinnamon-screensaver
     log "cinnamon-screensaver detected"
@@ -187,31 +190,31 @@ checkFullscreen()
                 if [[ $var -eq 1 ]]; then
                     delayScreensaver
                     return
-		else
-		    log "checkFullscreen(): the fullscreen app is unknown or not set to trigger the delay"
-		    # enable DPMS if necessary.
-		    dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
-    		    if [ $dpmsStatus == 0 ]; then
-		    log "checkFullscreen(): DPMS enabled"
-		    xset dpms
-		    fi
+                else
+                    log "checkFullscreen(): the fullscreen app is unknown or not set to trigger the delay"
+                    # enable DPMS if necessary.
+                    dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
+                    if [ $dpmsStatus == 0 ]; then
+                        log "checkFullscreen(): DPMS enabled"
+                        xset dpms
+                    fi
                     # Turn on X11 Screensaver if necessary.
                     X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
                     if [ $X11ScreensaverStatus -eq 0 ]; then
-                      log "checkFullscreen(): X11 Screensaver Extension enabled"
-                      xset s on
-		    fi
-		    return
+                        log "checkFullscreen(): X11 Screensaver Extension enabled"
+                        xset s on
+                    fi
+                    return
                 fi
-            # If no Fullscreen active => set dpms on.
+                # If no Fullscreen active => set dpms on.
             else
                 log "checkFullscreen(): NO fullscreen detected"
                 # enable DPMS if necessary.
                 dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
                 if [ $dpmsStatus == 0 ]; then
-		xset dpms
-		log "checkFullscreen(): DPMS enabled"
-		fi
+                    xset dpms
+                    log "checkFullscreen(): DPMS enabled"
+                fi
                 # Turn on X11 Screensaver if necessary.
                 X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
                 if [ $X11ScreensaverStatus -eq 0 ]; then
@@ -231,12 +234,12 @@ checkFullscreen()
 # This function covers the standard way to check apps in isAppRunning
 runcheck()
 {
-        if [[ "$activ_win_title" = *$1* ]]; then
-            if [ "$(pidof -s $1)" ]; then
-                log "isAppRunning(): $1 fullscreen detected"
-                return 1
-            fi
+    if [[ "$activ_win_title" = *$1* ]]; then
+        if [ "$(pidof -s $1)" ]; then
+            log "isAppRunning(): $1 fullscreen detected"
+            return 1
         fi
+    fi
 }
 
 isAppRunning()
@@ -406,6 +409,9 @@ delayScreensaver()
     elif [ "$screensaver" == "gnome-screensaver" ]; then
         log "delayScreensaver(): delaying gnome-screensaver..."
         dbus-send --session --dest=org.gnome.ScreenSaver --type=method_call /org/gnome/ScreenSaver org.gnome.ScreenSaver.SimulateUserActivity >/dev/null 2>&1
+    elif [ "$screensaver" == "mate-screensaver" ]; then
+        log "delayScreensaver(): delaying mate-screensaver..."
+        dbus-send --session --dest=org.mate.ScreenSaver --type=method_call /org/mate/ScreenSaver org.mate.ScreenSaver.SimulateUserActivity >/dev/null 2>&1
     elif [ "$screensaver" == "cinnamon-screensaver" ]; then
         log "delayScreensaver(): delaying cinnamon-screensaver..."
         dbus-send --session --dest=org.cinnamon.ScreenSaver --type=method_call /org/cinnamon/ScreenSaver org.cinnamon.ScreenSaver.SimulateUserActivity >/dev/null 2>&1
@@ -420,7 +426,7 @@ delayScreensaver()
     dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
     if [ $dpmsStatus == 1 ]; then
         xset -dpms
-	log "delayScrennsaver(): DPMS disabled"
+        log "delayScrennsaver(): DPMS disabled"
     fi
 
     # Turn off X11 Screensaver if necessary.
@@ -439,15 +445,25 @@ delayScreensaver()
             gsettings set org.gnome.desktop.session idle-delay $sessionIdleDelay 2>/dev/null
         fi
     fi
+
+    # Same for mate
+    if [[ $gsettings_present == 1 && $(gsettings get org.mate.session idle-delay 2>/dev/null) ]]; then
+        sessionIdleDelay=$(gsettings get org.mate.session idle-delay 2>/dev/null | sed "s/^.* //")
+        if [[ $sessionIdleDelay -ge 1 ]]; then
+            log "delayScreensaver(): resetting mate session..."
+            gsettings set org.mate.session idle-delay 0 2>/dev/null
+            gsettings set org.mate.session idle-delay $sessionIdleDelay 2>/dev/null
+        fi
+    fi
 }
 
 checkOutputs()
 {
     if [ $output_detection_control == 0 ]; then return; fi
     if [ $delay_this_loop == 1 ]; then
-	log "checkOutputs() omitted - already delayed this loop"
-	return
-   fi
+        log "checkOutputs() omitted - already delayed this loop"
+        return
+    fi
 
     log "checkOutputs()"
     declare -A connected_outputs
@@ -478,7 +494,7 @@ _sleep()
     if [ $dynamicDelay -eq 0 ]; then
         log "sleeping for $delay"
         log "--------------- loop done! ---------------"
-	sleep $delay
+        sleep $delay
     else
         if [ -f /sys/class/power_supply/AC/online ]; then
             if [ $gsettings_present == 1 ]; then
@@ -500,7 +516,7 @@ _sleep()
         fi
         log "sleeping for $sleep_delay (system idle timeout is $system_sleep_delay)"
         log "--------------- loop done! ---------------"
-	sleep $sleep_delay
+        sleep $sleep_delay
     fi
 }
 
