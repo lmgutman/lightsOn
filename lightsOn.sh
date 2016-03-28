@@ -123,9 +123,11 @@ if [ $DPMS_Control == 1 ]; then
 fi
 
 # Setting X11 Screensaver Extension.
+X11ScreenSaver_RestartTimeout="on"
 if [ $X11ScreenSaver_Control == 1 ]; then
-    log "Setting X11 Screensaver Extension to Timeout: $X11ScreenSaver_Timeout"
-    xset s $X11ScreenSaver_Timeout
+    X11ScreenSaver_RestartTimeout=$X11ScreenSaver_Timeout
+    log "Setting X11 Screensaver Extension to Timeout: $X11ScreenSaver_RestartTimeout"
+    xset s $X11ScreenSaver_RestartTimeout
 fi
 
 # enumerate all the attached screens
@@ -212,7 +214,7 @@ checkFullscreen()
             X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
             if [ $X11ScreensaverStatus -eq 0 ]; then
                 log "checkFullscreen(): X11 Screensaver Extension enabled"
-                xset s on
+                xset s $X11ScreenSaver_RestartTimeout
             fi
         fi
     done
