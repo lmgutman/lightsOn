@@ -143,10 +143,10 @@ elif pgrep -x kscreensaver > /dev/null; then
 elif pgrep -x xautolock > /dev/null; then
     screensaver=xautolock
     log "xautolock detected"
-elif pgrep -x gnome-screensaver > /dev/null; then
+elif pgrep -x gnome-screensav > /dev/null; then
     screensaver=gnome-screensaver
     log "gnome-screensaver detected"
-elif pgrep -x mate-screensaver > /dev/null; then
+elif pgrep -x mate-screensave > /dev/null; then
     screensaver=mate-screensaver
     log "mate-screensaver detected"
 elif pgrep -x cinnamon-screen > /dev/null; then
@@ -439,7 +439,7 @@ delayScreensaver()
         fi
     fi
 
-    # Same for mate
+    # Reset mate session idle timer.
     if [[ $gsettings_present == 1 && $(gsettings get org.mate.session idle-delay 2>/dev/null) ]]; then
         sessionIdleDelay=$(gsettings get org.mate.session idle-delay 2>/dev/null | sed "s/^.* //")
         if [[ $sessionIdleDelay -ge 1 ]]; then
