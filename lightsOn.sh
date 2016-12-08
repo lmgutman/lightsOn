@@ -109,6 +109,7 @@ log() {
     fi
 }
 
+log test
 pid=`pgrep --exact "$(basename $0)"`
 if [ $? -eq 0 -a "$pid" != "$$" ]
 then
@@ -262,7 +263,7 @@ isAppRunning()
         if [[ "$activ_win_title" = *Firefox* || "$activ_win_title" = *Iceweasel* ]]; then
             # Check if Firefox process is actually running.
             # firefox_process=$(pgrep -c "(firefox|/usr/bin/firefox|iceweasel|/usr/bin/iceweasel)")
-            if [ "$(pidof -s firefox iceweasel)" ]; then
+            if [ "$(pidof -s firefox-esr firefox iceweasel)" ]; then
                 log "isAppRunning(): firefox html5 fullscreen detected"
                 return 1
             fi
