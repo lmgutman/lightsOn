@@ -72,6 +72,7 @@ yandexBrowser_html5_flash_detection=1
 epiphany_html5_detection=1
 webkit_flash_detection=1
 minitube_detection=1
+brave_html5_detection=1
 
 # Names of programs which, when running, you wish to delay the screensaver.
 # For example ('ardour2' 'gmpc').
