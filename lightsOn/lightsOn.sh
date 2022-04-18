@@ -341,7 +341,7 @@ isAppRunning()
             fi
         fi
     fi
-    # Check if user want to detect HTML5 fullscreen on Brave .  
+    # Check if user want to detect HTML5 fullscreen on Brave .    
     if [ $brave_html5_detection == 1 ]; then
         if [[ "$activ_win_title" = *brave* ]]; then
             # Check if Chrome process is running.
