@@ -383,6 +383,7 @@ isAppRunning()
     if [ $mpv_detection == 1 ]; then runcheck mpv; if [ $? == 1 ]; then return 1; fi; fi
     if [ $vlc_detection == 1 ]; then runcheck vlc; if [ $? == 1 ]; then return 1; fi; fi
     if [ $minitube_detection == 1 ]; then runcheck minitube; if [ $? == 1 ]; then return 1; fi; fi
+    if [ $brave_html5_detection == 1 ]; then runcheck brave; if [ $? == 1 ]; then return 1; fi; fi
 
     return 0
 }
