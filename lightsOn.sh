@@ -183,15 +183,15 @@ checkFullscreen()
     for display in $displays
     do
         # Get id of active window and clean output
-        activ_win_id=$(DISPLAY=:${display} xprop -root _NET_CLIENT_LIST_STACKING | sed 's/.*\, //')
+        activ_win_id=$(DISPLAY=:${display} xprop -root _NET_CLIENT_LIST_STACKING | sed -ne 's/.*[#,] \(0x[0-9a-f]\+\)$/\1/p')
         # Previously used _NET_ACTIVE_WINDOW, but it didn't work with some flash
         # players (eg. Twitch.tv) in firefox. Using sed because id lengths can vary.
 
         # Check if active window is in fullscreen or above state.
         if [[ -n $activ_win_id ]]; then
-            isActivWinFullscreen=$(DISPLAY=:${display} xprop -id $activ_win_id | grep -c _NET_WM_STATE_FULLSCREEN)
+            isActivWinFullscreen=$(DISPLAY=:${display} xprop -id "$activ_win_id" | grep -c _NET_WM_STATE_FULLSCREEN)
             # Above state is used in some window managers instead of fullscreen.
-            isActivWinAbove=$(DISPLAY=:${display} xprop -id $activ_win_id | grep -c _NET_WM_STATE_ABOVE)
+            isActivWinAbove=$(DISPLAY=:${display} xprop -id "$activ_win_id" | grep -c _NET_WM_STATE_ABOVE)
             log "checkFullscreen(): Display: $display isFullScreen=$isActivWinFullscreen"
             log "checkFullscreen(): Display: $display isAbove=$isActivWinAbove"
             if [[ "$isActivWinFullscreen" -ge 1 || "$isActivWinAbove" -ge 1 ]]; then
@@ -208,13 +208,13 @@ checkFullscreen()
             fi
             # enable DPMS if necessary.
             dpmsStatus=$(xset -q | grep -c 'DPMS is Enabled')
-            if [ $dpmsStatus == 0 ]; then
+            if [ "$dpmsStatus" == 0 ]; then
                 xset dpms
                 log "checkFullscreen(): DPMS enabled"
             fi
             # Turn on X11 Screensaver if necessary.
-            X11ScreensaverStatus=$(xset q | grep timeout | sed "s/cycle.*$//" | tr -cd [:digit:])
-            if [ $X11ScreensaverStatus -eq 0 ]; then
+            X11ScreensaverStatus=$(xset q | grep timeout | sed 's/cycle.*$//' | tr -cd '[:digit:]')
+            if [ "$X11ScreensaverStatus" -eq 0 ]; then
                 log "checkFullscreen(): X11 Screensaver Extension enabled"
                 xset s $X11ScreenSaver_RestartTimeout
             fi
